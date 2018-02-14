@@ -1,1 +1,0 @@
-protoc -I=/Users/kayser/Documents/SENSORIS/specification/src/sensoris/protobuf/types --python_out=/Users/kayser/Documents/SENSORIS/ProtobufHandling/SensorisProtobuf_out base.proto

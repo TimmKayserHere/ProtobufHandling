@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+// matches directory foo
+package base;
+
+import "extension/extension1.proto";
+
+message Foo {
+  base.extension.Bar bar = 1;
+}
