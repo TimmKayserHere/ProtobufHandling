@@ -9,8 +9,8 @@ echo
 echo Compiling proprietary protobuf ...
 protoc -I=. --python_out=./ProprietaryProtobuf_out base.proto
 echo Done.
-echo -------------------------------
-echo Compiling SENSORIS protobuf ...
+echo ------------------------------------------------------------
+echo Compiling SENSORIS protobuf for PYTHON...
 cd ..
 cd specification
 echo Compile "data.proto"
@@ -18,6 +18,9 @@ protoc -I=./src/ --python_out=../ProtobufHandling/SensorisProtobuf_out/ ./src/se
 echo Done.
 echo Compile "base.proto"
 protoc -I=./src/ --python_out=../ProtobufHandling/SensorisProtobuf_out/ ./src/sensoris/protobuf/types/base.proto
+echo Done.
+echo Compile "source.proto"
+protoc -I=./src/ --python_out=../ProtobufHandling/SensorisProtobuf_out/ ./src/sensoris/protobuf/types/source.proto
 echo Done.
 echo Compile "spatial.proto"
 protoc -I=./src/ --python_out=../ProtobufHandling/SensorisProtobuf_out/ ./src/sensoris/protobuf/types/spatial.proto
@@ -58,5 +61,5 @@ echo Done.
 echo Compile "weather.proto"
 protoc -I=./src/ --python_out=../ProtobufHandling/SensorisProtobuf_out/ ./src/sensoris/protobuf/categories/weather.proto
 echo Done.
-echo Successfully compiled all SENSORIS protobuf files
-echo --------------------------------------------------
+echo Successfully compiled all SENSORIS protobuf files for PYTHON
+echo ------------------------------------------------------------
