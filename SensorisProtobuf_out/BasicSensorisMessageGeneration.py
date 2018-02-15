@@ -1,51 +1,36 @@
 import sys
+import uuid
+import time
 
 # first of all, we import some basic compiled protobufs
 from sensoris.protobuf.types import base_pb2
 from sensoris.protobuf.types import source_pb2
 from sensoris.protobuf.types import spatial_pb2
 from sensoris.protobuf.messages import data_pb2
-# from protobuf-3.5.1 import python
+from sensoris.protobuf.categories import localization_pb2
 
-print "All imports worked."
+import define_Version
+import define_Submitter
+import define_DataMessage
 
-# generating the SENSORIS message
-# a SENSORIS message at the very top has only 3 major components
-# (1) its the SENSORIS-version
-# (2) its the information on the Submitter
-# (3) its the data message itself, which gives further structure
+# The SENSORIS-Message basically consists of 3 elements
+# #1 version
+# #2 submitter
+# #3 data message
+#
+# These three elements will be generated here
+# Please go deeper into the python files to see, how these elements are internally generated
+
+# this is the SENSORIS message itself
 mySensorisMessage = data_pb2.DataMessages()
 
-############### 1 ###############
-# we locally define our own version message and append it to the SENSORIS message
-# the way, the version message is valid for non-repeated messages
-localVersion = base_pb2.Version()
-localVersion.major.value = 1
-localVersion.minor.value = 2
-localVersion.patch.value = 3
-localVersion.name.value = "SENSORIS Test Version"
+# Filling #1 (version)
+mySensorisMessage.version.CopyFrom(define_Version.DefineSENSORISVersion(4,5,6,"SENSORIS Test Version"))
 
-mySensorisMessage.version.CopyFrom(localVersion)
+# Filling #2 (submitter)
+mySensorisMessage.submitter.extend([define_Submitter.DefineSENSORISSubmitter("Audi", "A8", "3.0", "B-Sample")])
 
-############### 2 ###############
-# we locally define our own submitter message and append it to the SENSORIS message
-# the way we do that, is valid for repeated messages
-localsubmitter = base_pb2.Submitter()
-localsubmitter.name.value = "Audi A8"
-localsubmitter.type.value = "Awesome Car"
-localsubmitter.software_version.value = "3.0"
-localsubmitter.hardware_version.value = "B-sample"
-
-mySensorisMessage.submitter.extend([localsubmitter])
-
-############### 3 ###############
-# we locally define our first data message and append it later on to the SENSORIS message
-# Envelope (single)
-# EventGroup (repeated)
-# EventRelation (repeated)
-# EventSource (repeated)
-localDataMessage = data_pb2.DataMessage()
-
-mySensorisMessage.data_message.extend([localDataMessage])
+# Filling #3 (data message)
+mySensorisMessage.data_message.extend([define_DataMessage.DefineSENSORISDataMessage()])
 
 print mySensorisMessage.__unicode__()
