@@ -51,7 +51,6 @@ def defineLocalizationCategory():
     # all elements are defined as "repeated", that means, you can link multiple of them together   
     localLocalizationCategory = localization_pb2.LocalizationCategory()
 
-    # START TO WORK HERE!
     # hand over the information from sub-functions
     localLocalizationCategory.vehicle_position_and_orientation.extend([defineVehiclePositionAndOrientation()])
     localLocalizationCategory.vehicle_odometry.extend([defineVehicleOdometry()])
@@ -60,22 +59,177 @@ def defineLocalizationCategory():
     return localLocalizationCategory
 
 def defineVehiclePositionAndOrientation():
+    
     localVehiclePositionAndOrientation = localization_pb2.VehiclePositionAndOrientation()
+
+    localEnvelope = base_pb2.EventEnvelope()
+    localPosition = spatial_pb2.Position()
+    localOrientation = spatial_pb2.Rotation()
+    localNavigationSatelliteSystem = localization_pb2.VehiclePositionAndOrientation.NavigationSatelliteSystem()
+
+    # ENVELOPE
+    localEnvelope.id.value = 123
+    localEnvelope.timestamp.CopyFrom(defineTimestamp())
+
+    # POSITION
+    localPosition.CopyFrom(definePosition("geometric", "ad"))
+
+    # ORIENTATION
+    localOrientation.CopyFrom(defineRotation("euler", "ad"))
+
+    # SATELLITE SYSTEM
+    localNavigationSatelliteSystem = localization_pb2.VehiclePositionAndOrientation.NavigationSatelliteSystem()
+
+    # SATELLITE SYSTEM -- Satellites by System
+    localSatellitesBySystem = localization_pb2.VehiclePositionAndOrientation.NavigationSatelliteSystem.SatellitesBySystem()
+    localSatellitesBySystem.system = source_pb2.Sensor.NavigationSatelliteSystem.GPS # IMPROVE HERE
+    localSatellitesBySystem.total.value = 2 # IMPROVE HERE
+    localNavigationSatelliteSystem.satellites_by_system.extend([localSatellitesBySystem])   
+
+    # SATELLITE SYSTEM - fix_type - hvpt dop
+    localNavigationSatelliteSystem.fix_type = localization_pb2.VehiclePositionAndOrientation.NavigationSatelliteSystem.TWO_D_SATELLITE_BASED_AUGMENTATION
+    localNavigationSatelliteSystem.hdop.value = 123
+    localNavigationSatelliteSystem.vdop.value = 456
+    localNavigationSatelliteSystem.pdop.value = 789
+    localNavigationSatelliteSystem.tdop.value = 369
+
+    localVehiclePositionAndOrientation.envelope.CopyFrom(localEnvelope)
+    localVehiclePositionAndOrientation.position.CopyFrom(localPosition)
+    localVehiclePositionAndOrientation.orientation.CopyFrom(localOrientation)
+    localVehiclePositionAndOrientation.navigation_satellite_system.CopyFrom(localNavigationSatelliteSystem)
+
     return localVehiclePositionAndOrientation
 
 def defineVehicleOdometry():
     localVehicleOdometry = localization_pb2.VehicleOdometry()
+
+    localVehicleOdometry_Envelope = base_pb2.EventEnvelope()
+    localVehicleOdometry_Translation = spatial_pb2.Position()
+    localVehicleOdometry_Rotation = spatial_pb2.Rotation()
+
+    localVehicleOdometry_Envelope.id.value = 123
+    localVehicleOdometry_Envelope.timestamp.CopyFrom(defineTimestamp())
+
+    localVehicleOdometry_Translation.CopyFrom(definePosition("geometric", "ad"))
+
+    localVehicleOdometry_Rotation.CopyFrom(defineRotation("euler", "ad"))
+
+    localVehicleOdometry.envelope.CopyFrom(localVehicleOdometry_Envelope)
+    localVehicleOdometry.translation.CopyFrom(localVehicleOdometry_Translation)
+    localVehicleOdometry.rotation.CopyFrom(localVehicleOdometry_Rotation)
+
     return localVehicleOdometry
 
 def defineVehicleDynamics():
     localVehicleDynamics = localization_pb2.VehicleDynamics()
+    
+    # taking care on the envelope
+    localVehicleDynamics_Envelope = base_pb2.EventEnvelope()
+    localVehicleDynamics_Envelope.id.value = 123
+    localVehicleDynamics_Envelope.timestamp.CopyFrom(defineTimestamp())
+
+    localVehicleDynamics.envelope.CopyFrom(localVehicleDynamics_Envelope)
+    localVehicleDynamics.speed.CopyFrom(defineVehicleSpeed("xyz"))
+    localVehicleDynamics.acceleration.CopyFrom(defineVehicleAcceleration("xyz"))
+    localVehicleDynamics.rotation_rate.CopyFrom(defineVehicleRotationRate("cov"))
+
     return localVehicleDynamics
+
+def defineVehicleSpeed(strAccuracy):
+    localSpeed = spatial_pb2.Speed()
+
+    localSpeed.x_m_p_s.value = 16666 # representing 16.666 m/s with scale factor = 3
+    localSpeed.y_m_p_s.value = 20
+    localSpeed.z_m_p_s.value = 30
+
+    if strAccuracy == "cxyz":
+        localSpeed.combined_x_y_z_accuracy.x_y_z_m_p_s.value = 2
+        pass
+    
+    if strAccuracy == "xyz":
+        localSpeed.x_y_z_accuracy.x_m_p_s.value = 2
+        localSpeed.x_y_z_accuracy.y_m_p_s.value = 2
+        localSpeed.x_y_z_accuracy.z_m_p_s.value = 2
+
+    if strAccuracy == "cov":
+        localSpeed.covariance_matrix.a11.value = 1
+        localSpeed.covariance_matrix.a12.value = 1
+        localSpeed.covariance_matrix.a13.value = 1
+        localSpeed.covariance_matrix.a21.value = 1
+        localSpeed.covariance_matrix.a22.value = 1
+        localSpeed.covariance_matrix.a23.value = 1
+        localSpeed.covariance_matrix.a31.value = 1
+        localSpeed.covariance_matrix.a32.value = 1
+        localSpeed.covariance_matrix.a33.value = 1
+
+    return localSpeed
+
+def defineVehicleAcceleration(strAccuracy):
+    localAcceleration = spatial_pb2.Acceleration()
+
+    localAcceleration.x_m_p_s2.value = 10
+    localAcceleration.y_m_p_s2.value = 20
+    localAcceleration.z_m_p_s2.value = 30
+
+    if strAccuracy == "cxyz":
+        localAcceleration.combined_x_y_z_accuracy.x_y_z_m_p_s2.value = 2
+        pass
+    
+    if strAccuracy == "xyz":
+        localAcceleration.x_y_z_accuracy.x_m_p_s2.value = 2
+        localAcceleration.x_y_z_accuracy.y_m_p_s2.value = 2
+        localAcceleration.x_y_z_accuracy.z_m_p_s2.value = 2
+
+    if strAccuracy == "cov":
+        localAcceleration.covariance_m2_p_s4.a11.value = 1
+        localAcceleration.covariance_m2_p_s4.a12.value = 1
+        localAcceleration.covariance_m2_p_s4.a13.value = 1
+        localAcceleration.covariance_m2_p_s4.a21.value = 1
+        localAcceleration.covariance_m2_p_s4.a22.value = 1
+        localAcceleration.covariance_m2_p_s4.a23.value = 1
+        localAcceleration.covariance_m2_p_s4.a31.value = 1
+        localAcceleration.covariance_m2_p_s4.a32.value = 1
+        localAcceleration.covariance_m2_p_s4.a33.value = 1
+
+    return localAcceleration
+
+def defineVehicleRotationRate(strAccuracy):
+    localVehicleDynamics_RotationRate = spatial_pb2.RotationRate()
+
+    localVehicleDynamics_RotationRate.yaw_deg_p_s.value = 20
+    localVehicleDynamics_RotationRate.pitch_deg_p_s.value = 40
+    localVehicleDynamics_RotationRate.roll_deg_p_s.value = 60
+
+    if strAccuracy == "cypr":
+        localVehicleDynamics_RotationRate.combined_yaw_pitch_roll_accuracy.yaw_pitch_roll_deg_p_s.value = 70
+        pass
+
+    if strAccuracy == "ypr":
+        localVehicleDynamics_RotationRate.yaw_deg_p_s.value = 80
+        localVehicleDynamics_RotationRate.pitch_deg_p_s.value = 90
+        localVehicleDynamics_RotationRate.roll_deg_p_s.value = 100
+        pass
+    
+    if strAccuracy == "cov":
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a11.value = 5
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a12.value = 10
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a13.value = 15
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a21.value = 20
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a22.value = 25
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a23.value = 30
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a31.value = 35
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a32.value = 40
+        localVehicleDynamics_RotationRate.covariance_matrix.covariance_deg2_p_s2.a33.value = 45
+        pass
+
+    return localVehicleDynamics_RotationRate
 
 
 def defineTimestamp():
     localTimestamp = base_pb2.Timestamp()
     getMilliseconds = int(round(time.time() * 1000))
     localTimestamp.posix_time_ms.value = getMilliseconds
+    # TODO: The fraction is actually the nanoseconds
     localTimestamp.posix_time_micro_s_fraction.value = 678 # QUESTION: HOW?
     return localTimestamp
 
@@ -111,8 +265,11 @@ def definePosition(positiontype, accuracyType):
     localMetricPosition = spatial_pb2.Position.Metric()
 
     # QUESTION: Wie loesen wir hier Kommawerte auf?
-    localGeograhicPosition.longitude_deg.value = 1111111
-    localGeograhicPosition.latitude_deg.value = 2222222
+    # This is the HERE-Location in Berlin 52.531047, 13.385009
+    # Lets assume, the GPS-position is exact to 5m radius
+    # assuming scalefactor = 5
+    localGeograhicPosition.longitude_deg.value = 52531047
+    localGeograhicPosition.latitude_deg.value = 13385009
     localGeograhicPosition.altitude_m.value = 100
 
     localMetricPosition.x_m.value = 10
@@ -141,12 +298,12 @@ def definePosition(positiontype, accuracyType):
 
     # #1
     localCombinedHorizontalAndVerticalAccuracy = spatial_pb2.Position.CombinedHorizontalVerticalAccuracy()
-    localCombinedHorizontalAndVerticalAccuracy.horizontal_vertical_m.value = 5 #representing 5m accuracy in both dimensions
+    localCombinedHorizontalAndVerticalAccuracy.horizontal_vertical_m.value = 500000 #representing 5m accuracy in both dimensions
 
     # #2
     localHorizontalAndVerticalAccuracy = spatial_pb2.Position.HorizontalVerticalAccuracy()
-    localHorizontalAndVerticalAccuracy.horizontal_m.value = 3 # representing 3m in horizontal direction QUESTION: WHAT IS HORIZONTAL?
-    localHorizontalAndVerticalAccuracy.vertical_m.value = 10
+    localHorizontalAndVerticalAccuracy.horizontal_m.value = 500000 # representing 3m in horizontal direction QUESTION: WHAT IS HORIZONTAL?
+    localHorizontalAndVerticalAccuracy.vertical_m.value = 500000
 
     # #3
     localHorizontalConfidenceEllipseVerticalAccuracy = spatial_pb2.Position.HorizontalConfidenceEllipseVerticalAccuracy()
@@ -157,7 +314,7 @@ def definePosition(positiontype, accuracyType):
     
     # #4
     localCovarianceMatrix = spatial_pb2.Position.CovarianceMatrix()
-    localCovarianceMatrix.covariance_m2.a11.value = 1
+    localCovarianceMatrix.covariance_m2.a11.value = 1 # a11 = 0.0012 ... asuming factor 5 ... 120
     localCovarianceMatrix.covariance_m2.a12.value = 2
     localCovarianceMatrix.covariance_m2.a13.value = 3
     localCovarianceMatrix.covariance_m2.a21.value = 4

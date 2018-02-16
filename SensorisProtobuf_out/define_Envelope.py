@@ -54,7 +54,7 @@ def defineSENSORISEnvelope():
 
     localMessageFactor = data_pb2.DataMessage.Envelope.Factor()
     # localMessageFactor.field_mask = 1
-    localMessageFactor.factor = 3
+    localMessageFactor.factor = 5
     # scale factor 3 means, that you interpret all values in "meter" as "millimeter"
     # example: vehicle width=2,5135m is represented as width 2513
 

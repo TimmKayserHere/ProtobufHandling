@@ -1,4 +1,6 @@
 import sys
+import os
+import zipfile
 import uuid
 import time
 
@@ -34,3 +36,26 @@ mySensorisMessage.submitter.extend([define_Submitter.DefineSENSORISSubmitter("Au
 mySensorisMessage.data_message.extend([define_DataMessage.DefineSENSORISDataMessage()])
 
 print mySensorisMessage.__unicode__()
+
+
+# writes the protobuf stream on a binary file on disk
+with open('generatedSENSORISmessage.bin', 'wb') as f:
+    f.write(mySensorisMessage.SerializeToString())
+
+# display the size of the written file
+statinfo = os.stat('generatedSENSORISmessage.bin')
+print "Size of written SENSORIS protobuf message is " + str(statinfo.st_size) + " Bytes"
+
+# here we check, if we can read the just dumped data
+mySENSORISmessage_rewrite = data_pb2.DataMessages()
+with open('generatedSENSORISmessage.bin', 'rb') as f:
+    mySENSORISmessage_rewrite.ParseFromString(f.read())
+
+# now we take the binary file from the disk an zip it
+output_message_zip = zipfile.ZipFile('generatedSENSORISmessage.zip', 'w')
+output_message_zip.write('generatedSENSORISmessage.bin', compress_type=zipfile.ZIP_DEFLATED)
+output_message_zip.close()
+
+# display the size of the compressed written file
+statinfo = os.stat('generatedSENSORISmessage.zip')
+print "Size of written SENSORIS protobuf message is " + str(statinfo.st_size) + " Bytes (compressed via zip)"
