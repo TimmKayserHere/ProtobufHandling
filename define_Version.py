@@ -9,7 +9,7 @@ from sensoris.protobuf.types import spatial_pb2
 from sensoris.protobuf.messages import data_pb2
 from sensoris.protobuf.categories import localization_pb2
 
-def DefineSENSORISVersion(major, minor, patch, name):
+def DefineSENSORISVersion(major, minor, patch):
     ############### 1 ###############
     # we locally define our own version message and append it to the SENSORIS message
     # the way, the version message is valid for non-repeated messages
@@ -18,6 +18,5 @@ def DefineSENSORISVersion(major, minor, patch, name):
     localVersion.major.value = major
     localVersion.minor.value = minor
     localVersion.patch.value = patch
-    localVersion.name.value = name
 
     return localVersion

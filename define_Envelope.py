@@ -9,6 +9,8 @@ from sensoris.protobuf.types import spatial_pb2
 from sensoris.protobuf.messages import data_pb2
 from sensoris.protobuf.categories import localization_pb2
 
+import config
+
 def defineSENSORISEnvelope():
 
     # the Envelope consists for three elements
@@ -24,7 +26,8 @@ def defineSENSORISEnvelope():
     # filling the identifiers with life
     localIdentifyer.session_id.value = str(uuid.uuid4())
     # why is the message_id a number, but the rest a string?
-    localIdentifyer.message_id.value = 123 
+    localIdentifyer.message_id.value = config.getConfig_Int("general_message_config", "message_id") 
+
     localIdentifyer.vehicle_fleet_id.value = str(uuid.uuid4())
     localIdentifyer.vehicle_id.value = str(uuid.uuid4())
     localIdentifyer.driver_id.value = str(uuid.uuid4())
@@ -38,23 +41,24 @@ def defineSENSORISEnvelope():
     # length:   5135mm    (maximum: 5265mm)
     # width:    1945mm     (maximum: 1949mm)
     # height:   1460mm    (maximum: 1473mm)
-    localminposition.x_m.value = 5135
-    localminposition.y_m.value = 1945
-    localminposition.z_m.value = 1460
+    localminposition.x_m.value = config.getConfig_Int("vehicle_dimensions", "minimal_vehicle_length_mm")
+    localminposition.y_m.value = config.getConfig_Int("vehicle_dimensions", "minimal_vehicle_width_mm")
+    localminposition.z_m.value = config.getConfig_Int("vehicle_dimensions", "minimal_vehicle_height_mm")
 
     # 2.1 defining the minimum vehicle dimensions
     # this is practially a bounding box around the vehicle
     localmaxposition = spatial_pb2.Position.Metric()
-    localmaxposition.x_m.value = 5265
-    localmaxposition.y_m.value = 1949
-    localmaxposition.z_m.value = 1473
+    localmaxposition.x_m.value = config.getConfig_Int("vehicle_dimensions", "maximal_vehicle_length_mm")
+    localmaxposition.y_m.value = config.getConfig_Int("vehicle_dimensions", "maximal_vehicle_width_mm")
+    localmaxposition.z_m.value = config.getConfig_Int("vehicle_dimensions", "maximal_vehicle_height_mm")
 
     localVehicleDimensions.min_position.CopyFrom(localminposition)
     localVehicleDimensions.max_position.CopyFrom(localmaxposition)
 
     localMessageFactor = data_pb2.DataMessage.Envelope.Factor()
     # localMessageFactor.field_mask = 1
-    localMessageFactor.factor = 5
+    localMessageFactor.factor = config.getConfig_Int("general_message_config", "scale_factor")
+
     # scale factor 3 means, that you interpret all values in "meter" as "millimeter"
     # example: vehicle width=2,5135m is represented as width 2513
 

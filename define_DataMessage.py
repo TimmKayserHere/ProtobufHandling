@@ -29,6 +29,7 @@ def DefineSENSORISDataMessage():
 
     # putting the local data message together
     # see, that the envelope is a non-repeated value, whereas the others are repeated messages
+    # QUESTION: IS THAT REALLY THE SENSORIS ENVELOPE REQUESTED HERE OR THE EVENT ENVELOPE?
     localDataMessage.envelope.CopyFrom(define_Envelope.defineSENSORISEnvelope())
     localDataMessage.event_group.extend([define_EventGroup.defineSENSORISEventGroup()])
     localDataMessage.event_relation.extend([define_EventRelation.defineSENSORISEventRelation()])
